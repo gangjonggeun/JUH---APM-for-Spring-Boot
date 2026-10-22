@@ -31,6 +31,16 @@ implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.1.11'
 
 ---
 
+
+
+
+
+
+## JUH — Lightweight APM for Spring Boot
+
+요청부터 SQL, 서버 리소스, 부하테스트까지. 여러 화면을 오가는 수고를 줄이고, 성능 문제를 한곳에서 확인해 보세요.
+
+
 ## 주요 기능
 
 | 기능 | 확인할 수 있는 정보 |
