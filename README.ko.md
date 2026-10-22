@@ -25,7 +25,7 @@
 Gradle 의존성:
 
 ```groovy
-implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.1.11'
+implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.1.10'
 ```
 
 물론 Prometheus, Grafana, Zipkin은 각각 훌륭한 도구입니다. 다만 여러 도구를 연결하고 화면을 오가며 확인하는 과정이 번거로워, 주요 성능 정보를 한곳에서 살펴볼 수 있도록 JUH를 만들었습니다.
