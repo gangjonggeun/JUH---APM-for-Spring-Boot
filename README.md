@@ -1,4 +1,5 @@
 # JUH — Lightweight Unified Performance Monitoring(APM)
+>Requests, SQL, server resources, and load tests — all in one place. Spend less time switching between tools and more time understanding your application's performance.
 
 ### How many tools do you need just to monitor your application and run load tests?
 
@@ -31,11 +32,6 @@ Prometheus, Grafana, and Zipkin are all excellent tools. But wiring multiple too
 
 ---
 
-
-
-## JUH — Lightweight APM for Spring Boot
-
-Requests, SQL, server resources, and load tests — all in one place. Spend less time switching between tools and more time understanding your application's performance.
 
 ## Features
 
@@ -197,6 +193,8 @@ In a Spring application, the total time observed can exceed the execution time o
 ---
 
 ## Configuration
+
+> You can assign a custom name to a load test by including the X-JUH-Test-Name header in your requests. For example, setting X-JUH-Test-Name: Login Load Test allows JUH to identify the test by name and keep its results organized.
 
 ### 1. Security and Local Environment
 
