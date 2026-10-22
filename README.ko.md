@@ -15,7 +15,7 @@
 ![JUH Dashboard](assets/juh_main.png)
 
 의존성 하나로 시작하는 통합 성능 모니터링.
-현재 최신 버전 : implementation('io.github.gangjonggeun:juh-spring-boot-starter:0.1.10')
+현재 최신 버전 : implementation('io.github.gangjonggeun:juh-spring-boot-starter:0.1.11')
 
 
 맨아래 필독 확인해주세요.
