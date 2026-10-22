@@ -49,6 +49,9 @@
 
 ![JUH 쿼리](assets/juh_sql.png)
 
+![JUH 부하테스트](assets/juh_ptest_1.png)
+![JUH 부하테스트](assets/juh_ptest_2.png)
+![JUH 부하테스트](assets/juh_ptest_3.png)
 
 
 
