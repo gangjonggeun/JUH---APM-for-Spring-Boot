@@ -53,5 +53,7 @@
 ![JUH 부하테스트](assets/juh_ptest_2.png)
 ![JUH 부하테스트](assets/juh_ptest_3.png)
 
+![JUH가 사용하는 리소스](assets/juh_resource.png)
+
 
 
