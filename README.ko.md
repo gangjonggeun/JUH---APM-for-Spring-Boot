@@ -159,3 +159,98 @@ LoadTestDetectionService의 queryStatistics.recordQuery()가 트레이스 단위
 3,470×3장=10,410
 
 =>네트워크 왕복 시간(RTT)과 커넥션 연결 오버헤드가 포함되어 약 6~10ms 더 길게 나올 수 있다고 알려주자
+
+
+
+## 필독
+1. 제 운영서버 요청이 많이 없어 실제 운영단계 테스트가 많이 부족합니다. 로컬 테스트를 통해 확인해본결과로는 overview(개요)에서 약간의 딜레이가 발생하는건 확인 신속히 고치겠다.
+
+2. 네트워크 왕복 시간(RTT)과 커넥션 연결 오버헤드가 포함되어 약 6~10ms 더 길게 나올 수 있음
+
+## 설정
+1. 로그인 및 로컬환경(부하테스트를 자동 감지) 설정
+security설정	기본값	  설명
+enabled	false	JUH 대시보드 및 API 보안 활성화 여부 true시 로그인 활성
+username	admin	대시보드 관리자 아이디
+password	juh_admin_pw	대시보드 관리자 비밀번호
+local	false	엔드포인트 기반 자동 부하 테스트 감지 활성화 여부 (로컬에서 부하테스트시 true)
+
+load-test설정 항목	기본값	의미
+idle-timeout-seconds	15초	요청이 없을 때 테스트 세션을 종료하는 대기 시간
+min-requests	250	일반 테스트의 최소 요청 수
+min-rps	10.0	일반 테스트의 최소 평균 초당 요청 수
+soak-min-requests	1000	Soak 테스트의 최소 요청 수
+soak-min-duration-seconds	60초	Soak 테스트의 최소 지속 시간
+spike-min-requests	50	Spike 테스트의 최소 요청 수
+spike-min-rps	50.0	Spike 테스트의 최소 평균 초당 요청 수
+explicit-min-requests	5	테스트 이름 헤더로 명시한 테스트의 최소 요청 수
+
+
+
+yml
+```yaml
+juh:
+  security:
+    # JUH true시 로그인 활성화 
+    enabled: false
+    # 대시보드 관리자 계정
+    username: admin
+    password: juh_admin_pw
+    
+    # 로컬 환경의 자동 부하 테스트 감지 활성화 여부(로컬로 부하시 true)
+    local: false
+
+  load-test:
+    # 요청이 없을 때 테스트 세션 종료까지 대기하는 시간(초)
+    idle-timeout-seconds: 15
+
+    # 일반 부하 테스트 감지 기준
+    min-requests: 250
+    min-rps: 10.0
+
+    # 장시간 지속되는 부하 테스트(Soak Test) 감지 기준
+    soak-min-requests: 1000
+    soak-min-duration-seconds: 60
+
+    # 짧고 강한 부하 테스트(Spike Test) 감지 기준
+    spike-min-requests: 50
+    spike-min-rps: 50.0
+
+    # X-JUH-Test-Name 헤더로 명시한 테스트의 최소 요청 수
+    explicit-min-requests: 5
+```
+
+
+properties
+```properties
+# ===== JUH Security =====
+# JUH true시 로그인 활성화
+juh.security.enabled=false
+# 대시보드 관리자 계정
+juh.security.username=admin
+juh.security.password=juh_admin_pw
+# 로컬 환경의 자동 부하 테스트 감지 활성화 여부(로컬로 부하시 true)
+juh.security.local=false
+
+# ===== JUH Load Test Detection =====
+# 요청이 없을 때 테스트 세션 종료까지 대기하는 시간(초)
+juh.load-test.idle-timeout-seconds=15
+
+# 일반 부하 테스트 감지 기준
+juh.load-test.min-requests=250
+juh.load-test.min-rps=10.0
+
+# 장시간 지속되는 부하 테스트(Soak Test) 감지 기준
+juh.load-test.soak-min-requests=1000
+juh.load-test.soak-min-duration-seconds=60
+
+# 짧고 강한 부하 테스트(Spike Test) 감지 기준
+juh.load-test.spike-min-requests=50
+juh.load-test.spike-min-rps=50.0
+
+# X-JUH-Test-Name 헤더로 명시한 테스트의 최소 요청 수
+juh.load-test.explicit-min-requests=5
+```
+
+
+
