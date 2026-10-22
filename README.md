@@ -189,12 +189,30 @@ In a Spring application, the total time observed can exceed the execution time o
 1. **Production validation is ongoing.** The production server has not received enough traffic to thoroughly test JUH under a wide range of real-world workloads. Local testing has revealed some delay on the Overview page, and this is an area for improvement.
 2. **Response times depend on where they are measured.** Client-side and server-side measurements can differ because of network latency, connection setup, serialization, and other overhead. The 6–10 ms difference mentioned above is an observation from some tests, not a fixed offset.
 3. **Accuracy results are environment-specific.** Actual performance and monitoring overhead depend on application architecture, database behavior, request volume, JVM configuration, and the runtime environment.
-
+4. RPS (requests per second) measurements may be less accurate during very short spike tests, especially those lasting around one second, due to the limited measurement window.
 ---
 
 ## Configuration
-
+### ▸ Load Test Header
 > You can assign a custom name to a load test by including the X-JUH-Test-Name header in your requests. For example, setting X-JUH-Test-Name: Login Load Test allows JUH to identify the test by name and keep its results organized.
+
+### ▸ Production Security Recommendation
+>In production environments, it is recommended to restrict access to the `/juh` dashboard using Nginx IP-based access control. The following example allows access only from explicitly permitted administrator IP addresses.
+
+### ▸ Nginx Configuration
+
+```nginx
+location /juh {
+    # Allowed administrator/office public IP addresses
+    allow 211.xxx.xxx.xxx;
+    allow 127.0.0.1;
+
+    # Block access from all other IP addresses
+    deny all;
+
+    proxy_pass http://localhost:8080;
+}
+```
 
 ### 1. Security and Local Environment
 
