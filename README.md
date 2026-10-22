@@ -20,12 +20,12 @@ Set up Prometheus to collect server metrics. Connect Grafana to visualize them. 
 </p>
 
 - **Live demo:** https://unique-lollipop-9a4948.netlify.app
-- **Latest version:** `0.1.11`
+- **Latest version:** `0.1.10`
 
 Add JUH to your project with Gradle:
 
 ```groovy
-implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.1.11'
+implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.1.10'
 ```
 
 Prometheus, Grafana, and Zipkin are all excellent tools. But wiring multiple tools together and switching between dashboards can get tedious. That's why I built JUH: to make the most important performance information available in one place.
