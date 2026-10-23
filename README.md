@@ -7,7 +7,7 @@ Set up Prometheus to collect server metrics. Connect Grafana to visualize them. 
 
 ### Ever spent an entire day setting things up instead of actually monitoring your application?
 
-## Stop adding more tools. Give JUH a try.
+## Stop adding more tools. Give JUH a try — it's free to use.
 
 **JUH brings request tracing, server resource metrics, SQL statistics, and load test results together in a single dashboard.** It's a lightweight APM built for Spring Boot, designed to make performance monitoring easier to get started with.
 
@@ -20,13 +20,21 @@ Set up Prometheus to collect server metrics. Connect Grafana to visualize them. 
 </p>
 
 - **Live demo:** https://unique-lollipop-9a4948.netlify.app
-- **Latest version:** `0.1.10`
+- **Latest version:** `0.2.0`
 
 Add JUH to your project with Gradle:
 
 ```groovy
-implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.1.10'
+implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.2.0'
 ```
+> **💡 Accessing the Dashboard**
+>
+> Append `/juh` or `/juh/` to your application URL to access the dashboard in your browser. Both paths are supported.
+>
+> - Example (local): `http://localhost:8080/juh` or `http://localhost:8080/juh/` 
+> - Example (deployed): `https://example.com/juh` or `https://example.com/juh/`
+
+
 
 Prometheus, Grafana, and Zipkin are all excellent tools. But wiring multiple tools together and switching between dashboards can get tedious. That's why I built JUH: to make the most important performance information available in one place.
 
@@ -174,13 +182,12 @@ The following table summarizes SQL execution counts observed during a particular
 | Three additional INSERT operations | 3,470 each | 3,470 each | 0 | Successful requests |
 | `insert user_card_items` | 10,410 | 10,410 | 0 | Three inserts per successful request |
 
-The collected counts matched the expected counts for these operations in this test. However, matching SQL error counts to failed HTTP requests does not, by itself, prove a direct causal relationship. A more rigorous verification would correlate trace IDs with transaction outcomes and database execution logs.
-
 ---
 
 ## Why Timing Differences Occur
 
-In a Spring application, the total time observed can exceed the execution time of the method body or individual queries due to transaction handling and other overhead. Response times can also include network round-trip time (RTT) and connection setup overhead, which may add around 6–10 ms in some environments.
+In a Spring application, the total time observed can exceed the execution time of the method body or individual queries due to transaction handling and other overhead. The same issue has also been observed with other APM tools.
+Response times can also include network round-trip time (RTT) and connection setup overhead, which may add around 6–10 ms in some environments.
 
 ---
 
@@ -196,13 +203,21 @@ In a Spring application, the total time observed can exceed the execution time o
 ### ▸ Load Test Header
 > You can assign a custom name to a load test by including the X-JUH-Test-Name header in your requests. For example, setting X-JUH-Test-Name: Login Load Test allows JUH to identify the test by name and keep its results organized.
 
+### ▸⚙️ Security Configuration Note
+
+> If you use Spring Security, make sure to include both `/juh` and `/juh/` in your `requestMatchers` configuration to allow access to the dashboard.
+>
+> If you use a custom `BlockFilter` or similar request-blocking filter, review its rules and exclude `.js`, `.css`, and `.html` files where necessary to ensure the dashboard's static resources load correctly.
+>
+> Blocking these resources may prevent the dashboard from rendering properly.
+
 ### ▸ Production Security Recommendation
->In production environments, it is recommended to restrict access to the `/juh` dashboard using Nginx IP-based access control. The following example allows access only from explicitly permitted administrator IP addresses.
+>In production environments, it is recommended to restrict access to the `/juh` or `/juh/` dashboard using Nginx IP-based access control. The following example allows access only from explicitly permitted administrator IP addresses.
 
 ### ▸ Nginx Configuration
 
 ```nginx
-location /juh {
+location ~ ^/juh(/.*)?$ {
     # Allowed administrator/office public IP addresses
     allow 211.xxx.xxx.xxx;
     allow 127.0.0.1;
