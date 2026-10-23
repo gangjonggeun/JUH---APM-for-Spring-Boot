@@ -27,6 +27,12 @@ Add JUH to your project with Gradle:
 ```groovy
 implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.2.0'
 ```
+```Kotlin DSL
+implementation("io.github.gangjonggeun:juh-spring-boot-starter:0.2.0")
+```
+
+
+
 > **💡 Accessing the Dashboard**
 >
 > Append `/juh` or `/juh/` to your application URL to access the dashboard in your browser. Both paths are supported.
