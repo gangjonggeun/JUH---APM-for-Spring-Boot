@@ -20,13 +20,19 @@
 </p>
 
 - **대시보드 미리보기:** https://unique-lollipop-9a4948.netlify.app
-- **현재 최신 버전:** `0.1.10`
+- **현재 최신 버전:** `0.2.0`
 
 Gradle 의존성:
 
 ```groovy
-implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.1.10'
+implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.2.0'
 ```
+> **💡 대시보드 접속**
+>
+> 브라우저에서 애플리케이션 주소 뒤에 `/juh` 또는 `/juh/`를 붙여 접속할 수 있습니다.
+>
+> - 예시 (로컬): `http://localhost:8080/juh` or `http://localhost:8080/juh/`
+> - 예시 (배포 환경): `https://example.com/juh` or `https://example.com/juh/`
 
 물론 Prometheus, Grafana, Zipkin은 각각 훌륭한 도구입니다. 다만 여러 도구를 연결하고 화면을 오가며 확인하는 과정이 번거로워, 주요 성능 정보를 한곳에서 살펴볼 수 있도록 JUH를 만들었습니다.
 
@@ -161,7 +167,7 @@ JUH의 측정값을 애플리케이션 코드의 실측값 및 부하테스트 �
 
 
 #### 차이가 발생하는 이유
-Spring의 환경에서는 메서드 본문 및 실행 및 쿼리가 기타 다른 오버헤드로 인해 순수 실행 시간보다 길게 측정될 수 있습니다.
+Spring의 환경에서는 메서드 본문 및 실행 및 쿼리가 기타 다른 오버헤드로 인해 순수 실행 시간보다 길게 측정될 수 있습니다. 기타 다른 APM에서도 동일한 문제를 확인하였습니다.
 응답 시간의 경우도 네트워크 왕복 시간(RTT)과 커넥션 연결 오버헤드가 포함되어 약 6~10ms 더 길게 나올 수 있습니다.
 
 
@@ -181,7 +187,7 @@ Spring의 환경에서는 메서드 본문 및 실행 및 쿼리가 기타 다�
 | 부가 정보 INSERT 3종 | 각 3,470건 | 각 3,470건 | 0건 | 성공 요청 기준 |
 | `insert user_card_items` | 10,410건 | 10,410건 | 0건 | 성공 요청당 3건 |
 
-이 테스트에서는 요청 수와 주요 SQL 수집 건수가 일치했습니다. 다만 SQL 오류 건수와 HTTP 실패 요청 수가 일치한다는 사실만으로 두 항목의 인과관계까지 증명되는 것은 아닙니다. 엄밀한 검증에는 트레이스 ID, 트랜잭션 결과, 실제 DB 실행 로그를 함께 대조하는 과정이 필요합니다.
+
 
 ---
 
@@ -199,15 +205,22 @@ Spring의 환경에서는 메서드 본문 및 실행 및 쿼리가 기타 다�
 
 > 부하테스트를 실행할 때 요청 헤더에 X-JUH-Test-Name을 포함하면 테스트 이름을 직접 지정할 수 있습니다. 예를 들어 X-JUH-Test-Name: Login Load Test로 설정하면 해당 이름으로 테스트를 식별하고 결과를 구분할 수 있습니다.
 
+### ▸  보안 설정 참고
+>
+> Spring Security를 사용하는 경우, 대시보드 접근을 위해 `requestMatchers`에 `/juh`와 `/juh/` 경로를 모두 추가해야 합니다.
+>
+> 또한 커스텀 `BlockFilter` 등에서 요청을 차단하고 있다면, 대시보드의 정적 리소스가 정상적으로 로드되도록 `.js`, `.css`, `.html` 파일에 대한 차단 규칙을 확인하고 필요한 경우 제외해야 합니다.
+>
+> 정적 리소스 요청이 차단되면 대시보드가 정상적으로 표시되지 않을 수 있습니다.
+
+
 ### ▸ 운영 환경 보안 권장사항
 
->운영 환경에서는 Nginx의 IP 접근 제어를 설정해 `/juh` 대시보드에 접근할 수 있는 IP를 제한하는 것을 권장합니다. 아래는 허용된 관리자 IP만 접근할 수 있도록 설정하는 예시입니다.
-### ▸ Nginx Configuration
+>운영 환경에서는 Nginx의 IP 접근 제어를 설정해 `/juh` or `/juh/` 대시보드에 접근할 수 있는 IP를 제한하는 것을 권장합니다. 아래는 허용된 관리자 IP만 접근할 수 있도록 설정하는 예시입니다.
 
 ### ▸ Nginx Configuration
-
 ```nginx
-location /juh {
+location ~ ^/juh/?$ {
     # Allowed administrator/office public IP addresses
     allow 211.xxx.xxx.xxx;
     allow 127.0.0.1;
