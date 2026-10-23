@@ -7,7 +7,7 @@
 
 ### 모니터링 좀 해보려다가 설정만 하다 하루가 다 가셨나요?
 
-## 이제 그만 추가하세요. JUH 하나면 됩니다.
+## 이제 그만 추가하세요. JUH 하나면 됩니다. 무료
 
 **JUH는 요청 추적, 서버 리소스, SQL 통계, 부하테스트 결과를 하나의 대시보드에서 확인할 수 있도록 통합한 가벼운 Spring Boot APM입니다.**
 
@@ -26,6 +26,9 @@ Gradle 의존성:
 
 ```groovy
 implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.2.0'
+```
+```kotlin dsl
+implementation (io.github.gangjonggeun:juh-spring-boot-starter:0.2.0)
 ```
 > **💡 대시보드 접속**
 >
