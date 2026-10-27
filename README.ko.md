@@ -20,15 +20,15 @@
 </p>
 
 - **대시보드 미리보기:** https://unique-lollipop-9a4948.netlify.app
-- **현재 최신 버전:** `0.2.0`
+- **현재 최신 버전:** `0.2.2`
 
 Gradle 의존성:
 
 ```groovy
-implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.2.0'
+implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.2.2'
 ```
 ```kotlin dsl
-implementation (io.github.gangjonggeun:juh-spring-boot-starter:0.2.0)
+implementation (io.github.gangjonggeun:juh-spring-boot-starter:0.2.2)
 ```
 > **💡 대시보드 접속**
 >
@@ -155,6 +155,8 @@ JUH의 측정값을 애플리케이션 코드의 실측값 및 부하테스트 �
 
 ### 2. 부하테스트 정합성 비교 — k6 vs JUH
 
+에러율을 포함한 과거 테스트 기록
+
 | 측정 항목 | k6 실측치 | JUH 측정치 | 차이 | 해석 |
 |---|---:|---:|---:|---|
 | 총 요청 수 | 3,951건 | 3,951건 | 0건 | 일치 |
@@ -167,6 +169,18 @@ JUH의 측정값을 애플리케이션 코드의 실측값 및 부하테스트 �
 | P95 응답 시간 | 273.16 ms | 260.0 ms | -13.16 ms | 측정 지점 차이의 영향 가능 |
 | P99 응답 시간 | — | 381.0 ms | — | JUH 측정값 |
 | 최대 응답 시간 | 1,500 ms | 1,498 ms | -2 ms | 유사한 최댓값 |
+
+가장 최신 테스트 기록
+| Measurement | k6 | JUH | Difference | Notes |
+|---|---:|---:|---:|---|
+| Total requests | 3,001 | 3,001 | 0 (0.0%) | Exact match (No trace drop) |
+| Successful requests | 3,001 | 3,001 | 0 (0.0%) | Match (100% success rate) |
+| Failed requests | 0 | 0 | 0 | Match (Zero error) |
+| HTTP error rate | 0.00% | 0.00% | 0.00%p | Match |
+| Throughput (RPS) | 99.86 | 101.59 | +1.73 (+1.73%) | Very close (Window timing difference) |
+| P50 response time | 618.33 ms | 620.0 ms | +1.67 ms (+0.27%) | Exceptional consistency |
+| P95 response time | 1,160.0 ms | 1,200.0 ms | +40.0 ms (+3.45%) | High consistency under bottleneck |
+| P99 response time | 1,540.0 ms | 1,600.0 ms | +60.0 ms (+3.90%) | Tail latency accurately tracked |
 
 
 #### 차이가 발생하는 이유
@@ -190,7 +204,16 @@ Spring의 환경에서는 메서드 본문 및 실행 및 쿼리가 기타 다�
 | 부가 정보 INSERT 3종 | 각 3,470건 | 각 3,470건 | 0건 | 성공 요청 기준 |
 | `insert user_card_items` | 10,410건 | 10,410건 | 0건 | 성공 요청당 3건 |
 
+### 4. 서버 리소스 정합성 (Server Resource Metrics)
 
+| Measurement | k6 (Raw Snapshot) | JUH (Time-Series) | Difference | Notes |
+|---|---:|---:|---:|---|
+| Peak System CPU | 83.3% | 72.22% | -11.08%p | Smoothed due to 1s periodic sampling |
+| Peak Process CPU | 100.0% | 100.0% | 0.0%p | Exact match |
+| Peak Heap Memory | 233 MB | 204 MB | -29 MB | Sample timing near GC sawtooth peak |
+| Peak HikariCP Active | 20 | 20 | 0 conn (0.0%) | Exact match (Pool limit reached) |
+| Peak HikariCP Pending | 79 | 80 | +1 conn (+1.25%) | Near exact match (Bottleneck identified) |
+| Peak Active Threads | 38 | 38 | 0 threads (0.0%) | Exact match |
 
 ---
 
@@ -200,6 +223,10 @@ Spring의 환경에서는 메서드 본문 및 실행 및 쿼리가 기타 다�
 2. **응답 시간은 측정 위치에 따라 달라집니다.** 클라이언트와 서버의 측정값에는 네트워크 왕복 시간(RTT), 연결 설정, 직렬화 등 여러 요소가 다르게 반영될 수 있습니다. 특정 테스트에서 약 6~10ms 차이가 관측될 수 있지만, 이는 고정된 오차가 아니며 환경에 따라 달라집니다.
 3. **정합성 수치는 특정 테스트 환경의 결과입니다.** 실제 성능과 오버헤드는 애플리케이션 구조, DB, 요청량, JVM 설정 및 실행 환경에 따라 달라질 수 있습니다.
 4. 약 1초 내외의 짧은 Spike 테스트에서는 측정 구간이 짧기 때문에 RPS(초당 요청 수)의 정확도가 떨어질 수 있습니다.
+5. 리소스 지표 그래프의 전반적인 추이와 상승·하락 패턴은 실제 데이터와 대체로 유사하게 나타납니다. 다만, **1초 단위로 데이터를 수집하는 과정에서 불가피한 차이가 발생할 수 있습니다.** 
+JUH는 **경량 APM을 지향**하므로, 모니터링 오버헤드를 최소화하면서 데이터 정합성을 더욱 개선할 수 있도록 지속적으로 보완할 예정입니다.
+6. 현재 JUH는 저장 공간과 리소스 사용량을 최소화하기 위해 **최대 24시간 분량의 모니터링 데이터만 보관**합니다.
+이는 **경량화라는 설계 방향**에 따른 것입니다. 향후 실제 사용 사례와 성능 요구사항에 따라 데이터 보관 정책을 개선할 수 있습니다.
 ---
 
 ## 설정
