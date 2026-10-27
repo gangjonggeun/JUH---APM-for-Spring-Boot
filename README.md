@@ -20,15 +20,15 @@ Set up Prometheus to collect server metrics. Connect Grafana to visualize them. 
 </p>
 
 - **Live demo:** https://unique-lollipop-9a4948.netlify.app
-- **Latest version:** `0.2.0`
+- **Latest version:** `0.2.2`
 
 Add JUH to your project with Gradle:
 
 ```groovy
-implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.2.0'
+implementation 'io.github.gangjonggeun:juh-spring-boot-starter:0.2.2'
 ```
 ```Kotlin DSL
-implementation("io.github.gangjonggeun:juh-spring-boot-starter:0.2.0")
+implementation("io.github.gangjonggeun:juh-spring-boot-starter:0.2.2")
 ```
 
 
@@ -160,6 +160,8 @@ The figures below come from a specific test environment. They should be treated 
 
 ### 2. Load Test Results — k6 vs. JUH
 
+Historical Tests Including Error Rate
+
 | Measurement | k6 | JUH | Difference | Notes |
 |---|---:|---:|---:|---|
 | Total requests | 3,951 | 3,951 | 0 | Match |
@@ -172,6 +174,19 @@ The figures below come from a specific test environment. They should be treated 
 | P95 response time | 273.16 ms | 260.0 ms | -13.16 ms | Measurement points may differ |
 | P99 response time | — | 381.0 ms | — | Reported by JUH |
 | Maximum response time | 1,500 ms | 1,498 ms | -2 ms | Similar maximum values |
+
+Latest Test
+
+| Measurement | k6 | JUH | Difference | Notes |
+|---|---:|---:|---:|---|
+| Total requests | 3,001 | 3,001 | 0 (0.0%) | Exact match (No trace drop) |
+| Successful requests | 3,001 | 3,001 | 0 (0.0%) | Match (100% success rate) |
+| Failed requests | 0 | 0 | 0 | Match (Zero error) |
+| HTTP error rate | 0.00% | 0.00% | 0.00%p | Match |
+| Throughput (RPS) | 99.86 | 101.59 | +1.73 (+1.73%) | Very close (Window timing difference) |
+| P50 response time | 618.33 ms | 620.0 ms | +1.67 ms (+0.27%) | Exceptional consistency |
+| P95 response time | 1,160.0 ms | 1,200.0 ms | +40.0 ms (+3.45%) | High consistency under bottleneck |
+| P99 response time | 1,540.0 ms | 1,600.0 ms | +60.0 ms (+3.90%) | Tail latency accurately tracked |
 
 ### 3. Database and SQL Collection
 
@@ -188,6 +203,17 @@ The following table summarizes SQL execution counts observed during a particular
 | Three additional INSERT operations | 3,470 each | 3,470 each | 0 | Successful requests |
 | `insert user_card_items` | 10,410 | 10,410 | 0 | Three inserts per successful request |
 
+
+### 3. Resource Metrics
+
+| Measurement | k6 (Raw Snapshot) | JUH (Time-Series) | Difference | Notes |
+|---|---:|---:|---:|---|
+| Peak System CPU | 83.3% | 72.22% | -11.08%p | Smoothed due to 1s periodic sampling |
+| Peak Process CPU | 100.0% | 100.0% | 0.0%p | Exact match |
+| Peak Heap Memory | 233 MB | 204 MB | -29 MB | Sample timing near GC sawtooth peak |
+| Peak HikariCP Active | 20 | 20 | 0 conn (0.0%) | Exact match (Pool limit reached) |
+| Peak HikariCP Pending | 79 | 80 | +1 conn (+1.25%) | Near exact match (Bottleneck identified) |
+| Peak Active Threads | 38 | 38 | 0 threads (0.0%) | Exact match |
 ---
 
 ## Why Timing Differences Occur
@@ -203,13 +229,16 @@ Response times can also include network round-trip time (RTT) and connection set
 2. **Response times depend on where they are measured.** Client-side and server-side measurements can differ because of network latency, connection setup, serialization, and other overhead. The 6–10 ms difference mentioned above is an observation from some tests, not a fixed offset.
 3. **Accuracy results are environment-specific.** Actual performance and monitoring overhead depend on application architecture, database behavior, request volume, JVM configuration, and the runtime environment.
 4. RPS (requests per second) measurements may be less accurate during very short spike tests, especially those lasting around one second, due to the limited measurement window.
+5. The overall trends and fluctuations in resource metric graphs are generally consistent with the actual data. However, **minor discrepancies are inevitable due to the 1-second data collection interval**. Since JUH is designed to be a **lightweight APM**, I plan to further improve data consistency while minimizing monitoring overhead.
+6. JUH currently retains **up to 24 hours of monitoring data** to minimize storage requirements and resource consumption.
+This is part of its **lightweight design philosophy**. The data retention policy may be improved in the future based on practical use cases and performance requirements.
 ---
 
 ## Configuration
 ### ▸ Load Test Header
 > You can assign a custom name to a load test by including the X-JUH-Test-Name header in your requests. For example, setting X-JUH-Test-Name: Login Load Test allows JUH to identify the test by name and keep its results organized.
 
-### ▸⚙️ Security Configuration Note
+### ▸ Security Configuration Note
 
 > If you use Spring Security, make sure to include both `/juh` and `/juh/` in your `requestMatchers` configuration to allow access to the dashboard.
 >
